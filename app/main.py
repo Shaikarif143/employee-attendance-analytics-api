@@ -13,6 +13,7 @@ from typing import Annotated, Any, Dict, List, Literal, Optional
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field, model_validator
 from pymongo import ASCENDING, DESCENDING, MongoClient, ReturnDocument
 from pymongo.errors import DuplicateKeyError
@@ -282,6 +283,16 @@ class RegularizeRequest(BaseModel):
 # --------------------------------------------------------------------------- #
 # Endpoints
 # --------------------------------------------------------------------------- #
+
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+def portal_page():
+    """Serves the interactive web portal for manual testing and HR workflows."""
+    portal_file = os.path.join(os.path.dirname(__file__), "portal.html")
+    if os.path.exists(portal_file):
+        with open(portal_file, "r", encoding="utf-8") as f:
+            return f.read()
+    return "<h1>HROne Attendance API</h1><p>Visit <a href='/docs'>/docs</a> for API documentation.</p>"
+
 
 @app.get("/health", tags=["system"])
 def health():
